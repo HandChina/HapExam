@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ #{copyright}#
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="exam.sales.mapper.OrderHeaderMapper">
+    <resultMap id="BaseResultMap" type="exam.sales.dto.OrderHeader" extends="com.hand.hap.mapper.StdMapper.STD">
+        <result column="HEADER_ID" property="headerId" jdbcType="DECIMAL"/>
+        <result column="ORDER_NUMBER" property="orderNumber" jdbcType="VARCHAR"/>
+        <result column="ORDER_DATE" property="orderDate" jdbcType="DATE"/>
+        <result column="ORDER_STATUS" property="orderStatus" jdbcType="VARCHAR"/>
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL"/>
+        <result column="CUSTOMER_NAME" property="customerName" jdbcType="VARCHAR"/>
+        <result column="COMPANY_NAME" property="companyName" jdbcType="VARCHAR"/>
+        <result column="CUSTOMER_ID" property="customerId" jdbcType="VARCHAR"/>
+  <!--       <result column="INVENTORY_ITEM_ID" property="inventoryItemId" jdbcType="DECIMAL"/> -->
+        <result column="SUMMARY" property="summary" jdbcType="DECIMAL"/>
+        
+
+        
+    </resultMap>
+	
+	<select id="selectByOrderHeader" parameterType="exam.sales.dto.OrderHeader" resultMap="BaseResultMap">
+  		SELECT oh.HEADER_ID,
+		       oh.ORDER_NUMBER,
+		       oh.ORDER_DATE,
+		       oh.ORDER_STATUS,
+			   oh.COMPANY_ID,
+			   oh.CUSTOMER_ID,
+			   cu.CUSTOMER_NAME,
+			   co.COMPANY_NAME,
+			   (ol.ORDERD_QUANTITY * ol.UNIT_SELLING_PRICE) SUMMARY
+		       
+		  FROM  hap_om_order_headers as oh
+		  		left join  hap_ar_customers as cu on   oh.customer_id = cu.customer_id
+		  		left join  hap_org_companys as co on   oh.company_id = co.company_id 
+		  		left join  hap_om_order_lines as ol on oh.header_id = ol.header_id   
+				
+		
+		     
+		       
+		<where>
+		  
+        	<if test="headerId != null">
+              AND oh.HEADER_ID = #{headerId,jdbcType=DECIMAL}
+            </if>
+            <if test="orderNumber != null">
+                AND  oh.ORDER_NUMBER like #{orderNumber,jdbcType=VARCHAR}
+            </if>
+            <if test="orderDate != null">
+                AND oh.ORDER_DATE like #{orderDate,jdbcType=DATE}
+            </if>
+            <if test="orderStatus != null">
+                AND  oh.ORDER_STATUS like #{orderStatus,jdbcType=VARCHAR}
+            </if>
+            <if test="companyId != null">
+                AND  oh.COMPANY_ID like #{companyId,jdbcType=VARCHAR}
+            </if>
+            <if test="customerId != null">
+                AND  oh.CUSTOMER_ID like #{customerId,jdbcType=DECIMAL}
+            </if>
+<!--             <if test="inventoryItemId != null">
+                AND it.INVENTORY_ITEM_ID = #{inventoryItemId,jdbcType=DECIMAL}
+            </if> -->
+        </where>
+    </select>
+    
+    
+    
+    <select id="selectOrderStatus" parameterType="exam.sales.dto.SysCode" resultType="exam.sales.dto.SysCode">
+		SELECT code.CODE_VALUE_ID,
+			   code.CODE_ID,
+			   code.VALUE,
+			   code.MEANING
+				
+		 FROM SYS_CODE_VALUE_B code
+<!-- 		 	  left join SYS_CODE_tl tl
+		      on code.CODE_VALUE_ID = tl.CODE_VALUE_ID
+		      and tl.lang = #{request.locale,jdbcType=VARCHAR}  -->
+		 WHERE code.CODE_ID = 127
+<!-- 		   left join fruit_tl fl
+		      on f.fruit_id = fl.fruit_id
+		      and fl.lang = #{request.locale,jdbcType=VARCHAR}  -->
+    </select>
+  
+  
+  
+</mapper>

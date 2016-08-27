@@ -1,0 +1,242 @@
+<#-- 
+* description: salse_order_gather.html 
+* version: 1.0
+*author:fei.tang@hand-china.com 
+* #{copyright}# 
+* --> 
+<#include "../include/head.html">
+<body style="padding: 10px;">
+
+    <form id="orderGatherForm"></form>
+	<div id="orderGatherGrid" style="margin: 0; padding: 0"></div>
+
+	<script type="text/javascript">
+	
+   	    $(function() {
+            window['orderGatherForm'] = $("#orderGatherForm").ligerForm({
+
+                fields : [  {
+                    type : 'text',
+                    label : '<@spring.message "hap.exam.salse.companysname"/>', 
+                    name : 'companyName',
+                    newline : false,
+                    width: 160,
+                    /* validate : true, */
+    				/* readonly:true */
+                },{
+                    type : 'text',
+                    label : '<@spring.message "exam.salse.customername"/>', 
+                    name : 'customerName', 
+                    newline : false,
+                    width: 160,
+                    /* validate : true, */
+    				/* readonly:true */
+                },{
+                    type : 'text',
+                    label : '<@spring.message "hap.exam.salse.headerid"/>', 
+                   	name : 'companyId', 
+                    newline : false,
+                    width: 160,
+                    /* validate : true, */
+    				/* readonly:true */
+                },{
+                    type : 'text',
+                    label : '<@spring.message "hap.exam.salse.itemdescription"/>', 
+                    name : 'itemDescription', 
+                    newline : true,
+                    width: 160,
+                    /* validate : true, */
+    				/* readonly:true */
+                },{
+                    type : 'text',
+                    label : '<@spring.message "hap.exam.salse.orderStatus"/>', 
+                    name : 'orderStatus', 
+                    newline : false,
+                    width: 160,
+                    /* validate : true, */
+    				/* readonly:true */
+                }],  
+                buttons : [ {
+                    text : '<@spring.message "hap.query"/>',
+                    disabled : false,
+                    width : 60,
+                    click : function() {
+                    	alert("here");
+                    	alert('${base.contextPath}');
+                        Hap.gridQuery({
+                            form : orderGatherForm,
+                            grid : orderGatherGrid
+                        }),
+                        Hap.loadForm({
+                        	form:form,
+                        	url:'${base.contextPath}/salse/companys/query',
+                        	para:{}
+                        })
+                    }
+                },{
+                    text : '<@spring.message "hap.reset"/>',
+                    disabled : false,
+                    width : 60,
+                    click : function() {
+                        Hap.gridQuery({
+                            form : fruitForm,
+                            grid : fruitGrid
+                        }),
+                        Hap.loadForm({
+                        	form:form,
+                        	url:'${base.contextPath}/salse/companys/query',
+                        	para:{}
+                        })
+                    }
+                },{
+                    text : '<@spring.message "hap.exam.salse.exportexcel"/>',
+                    disabled : false,
+                    width : 60,
+                    click : function() {
+                        Hap.gridQuery({
+                            form : fruitForm,
+                            grid : fruitGrid
+                        }),
+                        Hap.loadForm({
+                        	form:form,
+                        	url:'http://localhost:8080/core/salse/companys/query',
+                        	para:{}
+                        })
+                    }
+                }]
+        	});
+             
+            
+            
+            window['orderGatherGrid'] = $("#orderGatherGrid").ligerGrid({
+                unSetValidateAttr : false,
+                columns : [ 
+                            {
+                    display : '<@spring.message "hap.exam.salse.headerid"/>',
+                    name : 'headerId',
+                    align : 'left',
+                    width : 120
+                },
+                {
+                    display : '<@spring.message "hap.exam.salse.companysname"/>',
+                    name : 'companyName',
+                    align : 'left',
+                    width : 120,
+                    editor : {
+                        type : 'text'
+                    },
+                    validate: {
+                        required: true
+                    },                    
+                    render : function (item) {
+                        var companyId= item.companyId;
+                        $.ajax({
+                            url        : '${base.contextPath}/sales/company/query',
+                            async      : false,
+                            type       : "GET",
+                            dataType   : "json",
+                            contentType: "application/json",
+                            data       : {'companyId': companyId},
+                            success    : function (json) {
+                                if (json.success) {
+/*                                 	$.each( json, function(index, content)
+                                			{ 
+                                			 alert( index + ",and " + content.companyId + " is learning " + content.companyName ); 
+                                			});  */
+                                	temp = json.rows[0].companyName;
+                                    //alert(json.rows[0].companyName); 
+                                }
+                            },
+                            error      : function () {
+                                $.ligerDialog.closeWaitting();
+                            }
+                        });
+                    }
+                    
+                }
+               ,{
+                    display : '<@spring.message "hap.exam.salse.customername"/>', 
+                    name : 'customername',
+                    align : 'left',
+                    width : 120,
+                    editor:${lovService.getLov(base.contextPath,base.local,"lov_test")}, 
+                    validate: {
+                        required: true
+                    } 
+                }, {
+                    display : '<@spring.message "hap.exam.OrderHeader.orderDate"/>',
+                    name   : 'orderDate',
+                    align  : 'center',
+                    width  : 120,
+                    type: 'date',
+    	            format : 'yyyy-MM-dd',
+                    editor : {
+                        type: 'date'
+                    }    
+                },{
+                    display : '<@spring.message "hap.exam.salse.orderStatus"/>',
+                    name : 'orderStatus',
+                    align : 'left',
+                    width : 120,
+                    editor:${lovService.getLov(base.contextPath,base.local,"lov_test")}, 
+                    validate: {
+                        required: true
+                    }         
+                },{
+                	grid中的lov联动 
+                    display : "Order price",
+                    name : 'fruitName',
+                    align : 'left',
+                    width : 120,
+                    editor: $.extend(${lovService.getLov(base.contextPath,base.locale, "lov_test")},{
+                        staticOptions : function(e){
+                            //设置参数
+                            e.column.editor.parms = {
+                            		/* fruitCode : e.record.fruitCode, */
+                            		fruitCode : 'name21'
+                            }
+                        }
+                    }), 
+                    validate: {
+                        required: true
+                    } 
+                } ],
+                
+                
+                url : '${base.contextPath}/salse/companys/query',
+                
+                
+                toolbar : {
+                    items : [ {
+                        text : '<@spring.message "hap.new"/>',
+                        disable : false,
+                        click : function() {
+                            fruitGrid.addRow({})
+                        },
+                        icon : 'add'
+                    }]
+                },
+                
+                enabledEdit : true,
+                width : '99%',
+                height : '98%',
+                checkbox : true
+    /*             checkbox:{
+                canSelect:function(item){
+                	return item.ID > 2;
+                }
+                } , */
+
+            });
+    	});
+    </script>
+
+
+
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,310 @@
+<#-- 
+* description: salse_order_gather.html 
+* version: 1.0
+*author:fei.tang@hand-china.com 
+* #{copyright}# 
+* --> 
+<#include "../include/head.html">
+<body style="padding: 10px;">
+
+    <form id="orderGatherForm"></form>
+	<div id="orderGatherGrid" style="margin: 0; padding: 0"></div>
+
+	<script type="text/javascript">
+	
+        function openJobDetailPage(orderId) {
+            window.popWin = $.ligerDialog.open({
+                title : 'Order Details',
+                width : 760,
+            	height: 550,
+            	url   : 'sales_order_details.html?orderId'+orderId
+        	});
+    	}
+	
+	
+	
+   	    $(function() {
+            window['orderGatherForm'] = $("#orderGatherForm").ligerForm({
+
+                fields : [{
+                	/* ----------------------公司名称lov-------------------- */
+                    display :  '<@spring.message "exam.sales.companysname"/>',
+                    name : "companyId",  //最终选中的值字段名
+                    type : "popup",
+                    newline : false,
+                    width: 160,
+                    textField:'companyName',
+                    options:{
+                        readonly:false,//是否可编辑
+                        valueField : 'companyId',  //选中的valueField
+                        textField : 'companyName', //选中的textField
+                        grid : {
+                            columns : [ {
+                                display : '<@spring.message "exam.sales.companynumber"/>',
+                                name : "companyNumber",
+                                width : 200,
+                                type : "int",
+                                align : "center"
+                            }, {
+                                display : '<@spring.message "exam.sales.companysname"/>',
+                                name : "companyName",
+                                width : 200,
+                                type : "text",
+                                align : "center"
+                            } ],
+                            url : '${base.contextPath}/sales/company/query' 
+                        },
+                        condition : {
+                            fields : [ {
+                                display : '<@spring.message "exam.sales.companynumber"/>',
+                                name : "companyNumber",
+                                newline : false,
+                                type : "text"
+                            }, {
+                                display : '<@spring.message "exam.sales.companysname"/>',
+                                name : "companyName",
+                                newline : false,
+                                type : "text"
+                            } ] ,
+                            inputWidth : 150,
+                            labelWidth : 70
+                        }
+                    }
+                },{
+                	/* ----------------------客户名称lov-------------------- */
+                    display :  '<@spring.message "exam.sales.customername"/>',
+                    name : "customerId",  //最终选中的值字段名
+                    type : "popup",
+                    newline : false,
+                    width: 160,
+                    textField:'customerName',
+                    options:{
+                        readonly:false,//是否可编辑
+                        valueField : 'customerId',  //选中的valueField
+                        textField : 'customerName', //选中的textField
+                        grid : {
+                            columns : [ {
+                                display : '<@spring.message "exam.sales.customernumber"/>',
+                                name : "customerNumber",
+                                width : 200,
+                                type : "int",
+                                align : "center"
+                            }, {
+                                display : '<@spring.message "exam.sales.customername"/>',
+                                name : "customerName",
+                                width : 200,
+                                type : "text",
+                                align : "center"
+                            } ],
+                            url : '${base.contextPath}/sales/customer/query' 
+                        },
+                        condition : {
+                            fields : [ {
+                                display : '<@spring.message "exam.sales.customernumber"/>',
+                                name : "customerNumber",
+                                newline : false,
+                                type : "text"
+                            }, {
+                                display : '<@spring.message "exam.sales.customername"/>',
+                                name : "customerName",
+                                newline : false,
+                                type : "text"
+                            } ] ,
+                            inputWidth : 150,
+                            labelWidth : 70
+                        },
+                        /*----------------------------联动设置 ----------------------*/
+                        onLoadData: function() {
+                           this.setParm('companyId', $.ligerui.get('companyId').getValue());
+                       }
+                    }
+                },{
+                    type : 'text',
+                    label : '<@spring.message "exam.sales.ordernumber"/>', 
+                   	name : 'orderNumber', 
+                    newline : false,
+                    width: 160,
+                    validate : true
+                },{
+                	/* ----------------------物料lov-------------------- */
+                    display :  '<@spring.message "exam.sales.itemdescription"/>',
+                    name : "inventoryItemsId",  //最终选中的值字段名
+                    type : "popup",
+                    newline : true,
+                    width: 160,
+                    textField:'itemDescription',
+                    options:{
+                        readonly:false,//是否可编辑
+                        valueField : 'inventoryItemsId',  //选中的valueField
+                        textField : 'itemDescription', //选中的textField
+                        grid : {
+                            columns : [ {
+                                display : '<@spring.message "exam.sales.itemcode"/>',
+                                name : "itemCode",
+                                width : 200,
+                                type : "int",
+                                align : "center"
+                            }, {
+                                display : '<@spring.message "exam.sales.itemdescription"/>',
+                                name : "itemDescription",
+                                width : 200,
+                                type : "text",
+                                align : "center"
+                            } ],
+                            url : '${base.contextPath}/sales/inventory/query' 
+                        },
+                        condition : {
+                            fields : [ {
+                                display : '<@spring.message "exam.sales.itemcode"/>',
+                                name : "itemCode",
+                                newline : false,
+                                type : "text"
+                            }, {
+                                display : '<@spring.message "exam.sales.itemdescription"/>',
+                                name : "itemDescription",
+                                newline : false,
+                                type : "text"
+                            } ] ,
+                            inputWidth : 150,
+                            labelWidth : 70
+                        }
+                    }
+                },{
+                	/* -------------------------form上状态select-------------------- */
+                    display: '<@spring.message "exam.sales.orderstatus"/>',
+                    name: "orderStatus",
+                    type: "select",
+                    width:160,
+                    newline:false,
+                    textField:"codeId",
+                    options: {
+                        readonly: false,
+                        valueField: 'meaning',
+                        textField: 'meaning',
+                        url: '${base.contextPath}/sales/orderHeader/getStatus'
+                    }
+                }], buttons : [ {
+                    text : '<@spring.message "hap.query"/>',
+                    disabled : false,
+                    width : 60,
+                    click : function() {
+                        Hap.gridQuery({
+                            form : orderGatherForm,
+                            grid : orderGatherGrid
+                        }),
+                        Hap.loadForm({
+                        	form:form,
+                        	url:'${base.contextPath}/sales/orderHeader/query',
+                        	para:{}
+                        })
+                    }
+                },{
+                    text : '<@spring.message "hap.reset"/>',
+                    disabled : false,
+                    width : 60,
+                    click : function() {
+                    	orderGatherForm.reset();
+                    }
+                },{
+                    text : '<@spring.message "hap.exam.salse.exportexcel"/>',
+                    disabled : false,
+                    width : 60,
+                    click : function() {
+							alert("Unfinished!");
+                    }
+                }]
+        	});
+             
+            
+            
+            window['orderGatherGrid'] = $("#orderGatherGrid").ligerGrid({
+                unSetValidateAttr : false,
+                columns : [{
+                    display : '<@spring.message "exam.sales.headerid"/>',
+                    name : 'orderNumber',
+                    align : 'center',
+                    width : 120,
+                    render : function (item) {
+                        var orderNumber = item.orderNumber;
+                        //var alert('orderId');
+                        var html = "<a href='javascript:void(0)' " +
+                                "style='text-decoration: none;' " +
+                                "onclick='openJobDetailPage(\"" + orderNumber + "\")'>" + orderNumber + "</a>";
+                        return html;
+                    }
+                },{
+                    display : '<@spring.message "exam.sales.companysname"/>',
+                    name : 'companyName',
+                    align : 'center',
+                    width : 160
+                  /*   render : function (item) {
+                        var companyId= item.companyId;
+                        var companyName;
+                        $.ajax({
+                            url        : '${base.contextPath}/sales/company/query',
+                            async      : false,
+                            type       : "GET",
+                            dataType   : "json",
+                            contentType: "application/json",
+                            data       : {'companyId': companyId},
+                            success    : function (json) {
+                                if (json.success) {
+                                	companyName = json.rows[0].companyName;
+                                }
+                            },
+                            error  : function () {
+                                $.ligerDialog.closeWaitting();
+                            }
+                        });
+                        return companyName;
+                    }
+ */
+                },{
+                    display : '<@spring.message "exam.sales.customername"/>',
+                    name : 'customerName',
+                    align : 'center',
+                    width : 160,
+                },{
+                    display: '<@spring.message "exam.sales.orderdate"/>',
+                    name   : 'orderDate',
+                    align  : 'center',
+                    width  : 120,
+                    type: 'date',
+    	            format : 'yyyy-MM-dd',
+            },{
+                display : '<@spring.message "exam.sales.orderstatus"/>',
+                name : 'orderStatus',
+                align : 'center',
+                width : 120,
+            },{
+                display : '<@spring.message "exam.sales.price"/>',
+                name : 'summary',
+                align : 'center',
+                width : 120
+
+            }],
+                url : '${base.contextPath}/sales/orderHeader/query',
+                toolbar : {
+                    items : [ {
+                        text : '<@spring.message "hap.new"/>',
+                        disable : false,
+                        click : function() {
+                        	openJobDetailPage();
+                        	//orderGatherGrid.addRow({})
+                        },
+                        icon : 'add'
+                    }]
+                },
+                
+                enabledEdit : false,
+                width : '99%',
+                height : '98%',
+                checkbox : false
+
+            });
+    	});
+    </script>
+
+
+</body>
+</html>

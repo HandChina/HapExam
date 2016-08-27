@@ -1,0 +1,312 @@
+<#-- * description: Fruit.html 
+* version: 1.0 
+*author:taotao.xu@hand-china.com 
+* #{copyright}# * --> 
+<#include "../include/head.html">
+<body style="padding: 10px;">
+	<div id="navtab1" style="margin: 0; padding: 0 ;" class="liger-tab">
+		<div title="lovSduty" tabid="home" >
+			<form id="fruitForm"></form>
+			<div id="fruitGrid" style="margin: 0; padding: 0"></div>
+		</div>
+		
+		<div title="form" tabid="lo">	
+			<form id="lovForm"></form>
+		</div>
+			
+		<div title="table3" showclose="true"></div>
+		<div title="table4" showclose="true"></div>
+	</div>
+
+	
+	<script type="text/javascript">
+	
+    $(function() {
+        window['fruitForm'] = $("#fruitForm").ligerForm({
+        	
+            fields : [  {
+                type : 'text',
+                label : 'FruitId', 
+                name : 'fruitId',
+                newline : false,
+                width: 160,
+                /* validate : true, */
+				/* readonly:true */
+            }, {
+            	
+            	/* lov test测试,方法一，在页面中创建 */
+                type : 'text',
+                label : '<@spring.message "hbi.core.demo.dto.fruit.fruitname"/>', 
+                name : 'fruitName',
+                newline : false,
+                width: 160,
+                /* validate : true, */
+                type :"popup",
+                options:${lovService.getLov(base.contextPath,base.local,"lov_test")},
+                validate: {
+                	 required:true,
+                } 
+            }, {
+                type : 'text',
+                label : '<@spring.message "fruit.fruitdescription"/>',
+                name : 'fruitDescription',
+                newline : false,
+                width: 160,
+                type:'tl',
+                options:{
+                	idField:'fruitDescription',
+                	dto:'hbi.core.demo.dto.Fruit'
+                }
+            }, {
+                type : 'text',
+                label : '<@spring.message "hfs.ass.fruit.fruitcode"/>',
+                name : 'fruitCode',
+                width: 160,
+                newline:true
+            }, {
+            	/* form上select联动 */
+                display: "SelectLinkageOnForm",
+                name: "fruitCode2",
+                type: "select",
+                width:160,
+                newline:false,
+                textField:"fruitName",
+                options: {
+                    readonly: false,
+                    valueField: 'fruitId',
+                    textField: 'fruitName',
+                    url: '${base.contextPath}/ass/fruit/query',
+                    triggerToLoad: true,
+                    onBeforeOpen: function() {
+                    this.setParm('fruitCode', liger.get('fruitCode').getValue()); 
+                     this.triggerLoaded = false;  
+                    }  
+                }
+            }, {
+            	/* 方法二，代码创建lov，并实现lov在form中的联动 */
+                display : "LovLink",
+                name : "fruitName",  //最终选中的值字段名
+                type : "popup",
+                newline : false,
+                //如果不需要把lov选中的textField值放进data中那么这个属性可以不设置，如果需要放在data中就需要设置
+                textField:'fruitId',
+                options:{
+                    readonly:false,//是否可编辑
+                    valueField : 'fruitId',//选中的valueField
+                    textField : 'fruitName',//选中的textField
+                    grid : {
+                        columns : [ {
+                            display : 'fruitId',
+                            name : "fruitId",
+                            width : 150,
+                            type : "int",
+                            align : "left"
+                        }, {
+                            display : 'fruitName',
+                            name : "fruitName",
+                            width : 150,
+                            type : "text",
+                            align : "left"
+                        } ],
+                        //数据查询的url
+                        url : '${base.contextPath}//ass/fruit/query' 
+                    },
+                    //lov上的查询条件
+                    condition : {
+                        inputWidth : 150,
+                        labelWidth : 70,
+                        fields : [ {
+                            display : 'fruitName',
+                            name : "fruitName",
+                            newline : true,
+                            type : "text"
+                        }, {
+                            display : 'fruitId',
+                            name : "fruitId",
+                            newline : false,
+                            type : "text"
+                        } ]
+                    },
+                     /*      联动设置 */
+                    onLoadData: function() {
+                        //设置参数
+                       this.setParm('fruitCode', $.ligerui.get('fruitCode').getValue())
+                   }
+                }
+
+            }],
+            buttons : [ {
+                text : '<@spring.message "hap.query"/>',
+                disabled : false,
+                width : 60,
+                click : function() {
+                	
+                    Hap.gridQuery({
+                        form : fruitForm,
+                        grid : fruitGrid
+                    }),
+                    Hap.loadForm({
+                    	form:form,
+                    	url:'${base.contextPath}/ass/fruit/query',
+                    	para:{}
+                    })
+                }
+            }]
+        });
+
+        
+        
+        window['fruitGrid'] = $("#fruitGrid").ligerGrid({
+            unSetValidateAttr : false,
+            columns : [ {
+                display : '<@spring.message "hfs.ass.fruit.fruitid"/>',
+                name : 'fruitId',
+                align : 'left',
+                width : 120
+            },{
+                display : 'fruitCode',
+                name : 'fruitCode',
+                align : 'left',
+                width : 120,
+                editor : {
+                    type : 'text'
+                },
+                validate: {
+                    required: true
+                }
+            },{
+                display : '<@spring.message "hfs.ass.fruit.fruitname"/>',
+                name : 'fruitName',
+                align : 'left',
+                width : 120,
+                editor:${lovService.getLov(base.contextPath,base.local,"lov_test")}, 
+                validate: {
+                    required: true
+                } 
+            }, {
+                display : '<@spring.message "hfs.ass.fruit.fruitdescription"/>',
+                name : 'fruitDescription',
+                align : 'left',
+                width : 150,
+                editor : {
+                	  type : 'tl',
+                      idField:'fruitId',
+                      dto:'hbi.core.demo.dto.Fruit'
+                }  
+            },{
+                    display: 'Date',
+                    name   : 'lastUpdateDate',
+                    align  : 'center',
+                    width  : 120,
+                    type: 'date',
+    	            format : 'yyyy-MM-dd',
+                    editor : {
+                        type: 'date'
+                    }          
+            },{
+            	/* grid中的lov联动 */
+                display : '<@spring.message "hfs.ass.fruit.fruitname"/>',
+                name : 'fruitName',
+                align : 'left',
+                width : 120,
+                editor: $.extend(${lovService.getLov(base.contextPath,base.locale, "lov_test")},{
+                    staticOptions : function(e){
+                        //设置参数
+                        e.column.editor.parms = {
+                        		/* fruitCode : e.record.fruitCode, */
+                        		fruitCode : 'name21'
+                        }
+                    }
+                }), 
+                validate: {
+                    required: true
+                } 
+            },{
+            	/* grid中的select联动 */
+                display : '<@spring.message "hfs.ass.fruit.fruitname"/>',
+                name : 'fruitName2',
+                align : 'left',
+                width : 120,
+                type : 'text',
+                editor:{
+                	type : 'select',
+                	textField : 'fruitName',
+                	valueField : 'fruitName',
+                	url : '${base.contextPath}/ass/fruit/query',
+                	 staticOptions: function(e) {
+                	        e.column.editor.parms = {
+                	            fruitCode : 'name21',
+                	            fruitName : 'name21'
+                	        }
+                	    }
+                }
+            }],
+            
+
+            
+            url : '${base.contextPath}/ass/fruit/query',
+            
+            
+            toolbar : {
+                items : [ {
+                    text : '<@spring.message "hap.new"/>',
+                    disable : false,
+                    click : function() {
+                        fruitGrid.addRow({})
+                    },
+                    icon : 'add'
+                }, {
+                    line : true
+                }, {
+                    text : '<@spring.message "hap.delete"/>',
+                    click : function() {
+							 Hap.gridDelete({
+                            grid : fruitGrid,
+                           /*  url : '${base.contextPath}/sys/student/delete' */
+                            url : '${base.contextPath}/ass/fruit/submit'
+                           
+                        }) 
+                    	fruitGrid.deleteSelectedRow();
+                    },
+                    icon : 'delete'
+                }, {
+                    line : true
+                }, {
+                    text : '<@spring.message "hap.save"/>',
+                    click : function() {
+                        Hap.gridSave({
+                            grid : fruitGrid,
+                            url : '${base.contextPath}/ass/fruit/submit'
+                        })
+                    },
+                    icon : 'save'
+                } ]
+            },
+            
+            enabledEdit : true,
+            width : '99%',
+            height : '98%',
+            checkbox : true
+/*             checkbox:{
+            canSelect:function(item){
+            	return item.ID > 2;
+            }
+            } , */
+
+        });
+             
+    });
+        
+        </script>
+		
+		
+	<script type="text/javascript">
+
+
+	</script>
+	
+		
+		
+		
+</body>
+</html>
