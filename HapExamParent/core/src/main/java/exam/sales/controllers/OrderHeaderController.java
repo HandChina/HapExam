@@ -56,7 +56,7 @@ public class OrderHeaderController extends BaseController {
     public ResponseData getOrders(OrderHeader order, @RequestParam(defaultValue = DEFAULT_PAGE) int page,
             @RequestParam(defaultValue = DEFAULT_PAGE_SIZE) int pagesize, HttpServletRequest request) {
         IRequest requestContext = createRequestContext(request);
-        System.out.println("====================controllers==========="+order.getCustomerId());
+        System.out.println("====================controllers==========="+order.getOrderNumber());
         
         return new ResponseData(orderHeaderService.selectByOrderHeader(requestContext, order, page, pagesize));
        
