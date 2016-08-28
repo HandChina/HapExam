@@ -35,13 +35,9 @@
 		  FROM  hap_om_order_headers as oh
 		  		left join  hap_ar_customers as cu on   oh.customer_id = cu.customer_id
 		  		left join  hap_org_companys as co on   oh.company_id = co.company_id 
-		  		left join  hap_om_order_lines as ol on oh.header_id = ol.header_id   
-				
-		
-		     
-		       
+		  		left join  hap_om_order_lines as ol on oh.header_id = ol.header_id 
 		<where>
-		  
+		  		
         	<if test="headerId != null">
               AND oh.HEADER_ID = #{headerId,jdbcType=DECIMAL}
             </if>

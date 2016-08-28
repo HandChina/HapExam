@@ -7,15 +7,12 @@
 
 	<div id="order_detail_tabs" class="liger-tab">
 		<div tabid="order_detail_addtab" title='<@spring.message "exam.sales.main"/>' lselected="true">
-			<div id="orderDetailsGrid" style="margin: 0; padding: 0"></div>
+			<div id="orderDetailsGrid" name="orderDetailsGrid"></div>
 		</div>
 		<div tabid="order_detail_attribute" title='<@spring.message "exam.sales.others"/>' lselected="true">
-			<div id="order_detail_otherstab" style="margin: 0; padding: 0"></div>
+			<div id="order_detail_otherstab" name="order_detail_otherstab"></div>
 		</div>
 	</div>
-
-
-
 
 
 	<script type="text/javascript">
@@ -32,7 +29,10 @@
                  width: 160,
                  validate: {
                 	 required:true,
-                } 
+                },
+                options   : {
+                    required: true
+                }
               },{
               	/* ----------------------公司名称lov-------------------- */
                   display :  '<@spring.message "exam.sales.companysname"/>',
@@ -41,10 +41,12 @@
                   newline : false,
                   width: 160,
                   textField:'companyName',
-
-  
+                  validate: {
+                 	 required:true,
+                 },
                   options:{
                       readonly:false,//是否可编辑
+                      required: true,
                       valueField : 'companyId',  //选中的valueField
                       textField : 'companyName', //选中的textField
                       grid : {
@@ -87,8 +89,12 @@
                   newline : false,
                   width: 160,
                   textField:'customerName',
+                  validate: {
+                 	 required:true,
+                 },
                   options:{
                       readonly:false,//是否可编辑
+                      required: true,
                       valueField : 'customerId',  //选中的valueField
                       textField : 'customerName', //选中的textField
                       grid : {
@@ -133,9 +139,12 @@
                   width  : 160,
                   type: 'date',
                   newline : false,
-                  required:true,
+                  validate: {
+                 	 required:true,
+                 },
   	              format : 'yyyy-MM-dd',
                   editor : {
+                	  required: true,
                       type: 'date',
                   }          
           },{
@@ -217,76 +226,92 @@
           window['orderDetailsGrid'] = $("#orderDetailsGrid").ligerGrid({
               unSetValidateAttr : false,
               columns : [{
-                  display : '<@spring.message "exam.sales.headerid"/>',
-                  name : 'orderNumber',
+                  display : '<@spring.message "exam.sales.lineNumber"/>',
+                  name : 'lineNumber',
+                  align : 'center',
+                  width : 60,
+                  type : 'text'
+              },{
+                  display : '<@spring.message "exam.sales.itemcode"/>',
+                  name : 'itemCode',
                   align : 'center',
                   width : 120,
-                  render : function (item) {
-                      var orderNumber = item.orderNumber;
-                      //var alert('orderId');
-                      var html = "<a href='javascript:void(0)' " +
-                              "style='text-decoration: none;' " +
-                              "onclick='openJobDetailPage(\"" + orderNumber + "\")'>" + orderNumber + "</a>";
-                      return html;
-                  }
+                  editor: $.extend(${lovService.getLov(base.contextPath,base.locale, "SALES_ITEM_CODE")},{
+                      staticOptions : function(e){
+                          //设置参数
+                          e.column.editor.parms = {
+                          		/* fruitCode : e.record.fruitCode, */
+                          		fruitCode : 'name21'
+                          }
+                      }
+                  }), 
+                  validate: {
+                      required: true
+                  } 
               },{
-                  display : '<@spring.message "exam.sales.companysname"/>',
-                  name : 'companyName',
+                  display : '<@spring.message "exam.sales.itemdescription"/>',
+                  name : 'itemDescription',
                   align : 'center',
                   width : 160
-                /*   render : function (item) {
-                      var companyId= item.companyId;
-                      var companyName;
-                      $.ajax({
-                          url        : '${base.contextPath}/sales/company/query',
-                          async      : false,
-                          type       : "GET",
-                          dataType   : "json",
-                          contentType: "application/json",
-                          data       : {'companyId': companyId},
-                          success    : function (json) {
-                              if (json.success) {
-                              	companyName = json.rows[0].companyName;
-                              }
-                          },
-                          error  : function () {
-                              $.ligerDialog.closeWaitting();
-                          }
-                      });
-                      return companyName;
-                  }
-*/
+                  
               },{
-                  display : '<@spring.message "exam.sales.customername"/>',
-                  name : 'customerName',
+                  display : '<@spring.message "exam.sales.orderquantityuom"/>',
+                  name : 'orderQuantityUom',
                   align : 'center',
-                  width : 160,
+                  width : 120,
+                  type : 'text'
               },{
-                  display: '<@spring.message "exam.sales.orderdate"/>',
-                  name   : 'orderDate',
+                  display: '<@spring.message "exam.sales.orderquantity"/>',
+                  name   : 'orderQuantity',
                   align  : 'center',
-                  width  : 120,
-                  type: 'date',
-  	            format : 'yyyy-MM-dd',
+                  width  : 80,
+                  type: 'text',
+                  validate: {
+                      required: true
+                  } ,
+                  editor :{
+                	  type : 'text',
+                  }
           },{
-              display : '<@spring.message "exam.sales.orderstatus"/>',
-              name : 'orderStatus',
+              display : '<@spring.message "exam.sales.unitSellingPrice"/>',
+              name : 'unitSellingPrice',
               align : 'center',
               width : 120,
+              type : 'text',
+              validate: {
+                  required: true
+              } ,
+              editor : {
+            	  type : 'text'
+              }
           },{
               display : '<@spring.message "exam.sales.price"/>',
-              name : 'summary',
+              name : 'unitSellingPrice',
               align : 'center',
-              width : 120
+              width : 120,
+              validate: {
+                  required: true,
+              } ,
+              editor : {
+            	  type : 'text',
+              },
+              render : function (item) {
+                  var quantity = item.orderQuantity;
+                  var unitPrice = item.unitSellingPrice;
+                  return quantity*unitPrice;
+              }
 
           },{
-              display : '<@spring.message "exam.sales.price"/>',
-              name : 'summary',
+              display : '<@spring.message "hap.comment"/>',
+              name : 'description',
               align : 'center',
-              width : 120
+              width : 120,
+              editor : {
+            	  type : 'text'
+              }
 
           }],
-              url : '${base.contextPath}/sales/orderHeader/query?headerId = 3',
+              url : '${base.contextPath}/sales/orderLine/query?headerId=${RequestParameters.headerId}',
               toolbar : {
                   items : [ {
                       text : '<@spring.message "hap.new"/>',
@@ -323,49 +348,60 @@
                   }]
               },
               
-              enabledEdit : false,
+              enabledEdit : true,
               width : '99%',
               height : '98%',
               checkbox : false
 
           });
 		  
+          
+          
+          
+          
           window['order_detail_otherstab'] = $("#order_detail_otherstab").ligerGrid({
         	  unSetValidateAttr : false,
               columns : [{
-              display : '<@spring.message "exam.sales.orderstatus"/>',
-              name : 'orderStatus',
+                  display : '<@spring.message "exam.sales.lineNumber"/>',
+                  name : 'lineNumber',
+                  align : 'center',
+                  width : 60,
+                  type : 'text'
+              },{
+              display : '<@spring.message "exam.sales.addtion"/>1',
+              name : 'addtion1',
               align : 'left',
               width : 120,
               editor :{ type : 'text'}
           },{
-              display : '<@spring.message "exam.sales.orderstatus"/>',
-              name : 'orderStatus',
+              display : '<@spring.message "exam.sales.addtion"/>2',
+              name : 'addtion2',
               align : 'left',
               width : 120,
               editor :{ type : 'text'}
           },{
-              display : '<@spring.message "exam.sales.orderstatus"/>',
-              name : 'orderStatus',
+              display : '<@spring.message "exam.sales.addtion"/>3',
+              name : 'addtion3',
               align : 'left',
               width : 120,
               editor :{ type : 'text'}
           },{
-              display : '<@spring.message "exam.sales.orderstatus"/>',
-              name : 'orderStatus',
+              display : '<@spring.message "exam.sales.addtion"/>4',
+              name : 'addtion4',
               align : 'left',
               width : 120,
               editor :{ type : 'text'}
           },{
-              display : '<@spring.message "exam.sales.orderstatus"/>',
-              name : 'orderStatus',
+              display : '<@spring.message "exam.sales.addtion"/>5',
+              name : 'addtion5',
               align : 'left',
               width : 120,
               editor :{ type : 'text'}
           }],
-              url : '${base.contextPath}/sales/orderHeader/query?headerId = 3',
+              url : '${base.contextPath}/sales/orderLine/query?headerId=${RequestParameters.headerId}',
               toolbar : {
                   items : [ {
+                	  name : 'test',
                       text : '<@spring.message "hap.new"/>',
                       disable : false,
                       click : function() {
@@ -390,7 +426,6 @@
                       click : function() {
   							 Hap.gridDelete({
                               grid : fruitGrid,
-                             /*  url : '${base.contextPath}/sys/student/delete' */
                               url : '${base.contextPath}/ass/fruit/submit'
                              
                           }) 
@@ -406,34 +441,42 @@
               checkbox : false
           });
 		  
-		  
-		  
         
         setJobFormData();
    	 	
    	    function getInfoDetail() {
-   	    	var orderId = "${RequestParameters.orderId}";
-   	     	$.ajax({
-             	url        : '${base.contextPath}/sales/orderHeader/query',
-             	async      : false,
-             	type       : "GET",
-             	dataType   : "json",
-             	contentType: "application/json",
-             	data       : {'orderNumber' : orderId},
-             	success    : function (json) {
-                 	if (json.success) {
-                     infoDetailData = json.rows[0];
-                 	}
-             	},
-             	error      : function () {
-                 	$.ligerDialog.closeWaitting();
-             	}
+   	    	var headerId = "${RequestParameters.headerId}";
+   	    	if(headerId != "-1"){
+   	     		$.ajax({
+             		url        : '${base.contextPath}/sales/orderHeader/query',
+             		async      : false,
+             		type       : "GET",
+             		dataType   : "json",
+             		contentType: "application/json",
+             		data       : {'headerId' : headerId},
+             		success    : function (json) {
+                 		if (json.success) {
+                     	infoDetailData = json.rows[0];
+                 		}
+             		},
+             		error      : function () {
+                 		$.ligerDialog.closeWaitting();
+             		}
          	});
+   	    	}else{
+   	    		
+   	    		//orderDetailsGrid.addRow({})
+   	    	}
    	    }
 
    	    function setJobFormData() {
    	        var obj = {
-   	        		orderNumber          : infoDetailData.headerId
+   	        		orderNumber    : infoDetailData.orderNumber,
+   	        		companyName    : infoDetailData.companyName,
+   	        		customerName   : infoDetailData.customerName,
+   	        		orderDate      : infoDetailData.orderDate,
+   	        		summary        : infoDetailData.summary,
+   	        		orderStatus    : infoDetailData.orderStatus
    	        };
    	        var form = liger.get("orderDetailsForm");
    	        form.setData(obj);

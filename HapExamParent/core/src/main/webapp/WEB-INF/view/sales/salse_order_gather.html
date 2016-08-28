@@ -12,16 +12,14 @@
 
 	<script type="text/javascript">
 	
-        function openJobDetailPage(orderId) {
+        function openJobDetailPage(headerId) {
             window.popWin = $.ligerDialog.open({
                 title : 'Order Details',
                 width : 960,
             	height: 550,
-            	url   : 'sales_order_details.html?orderId='+orderId
+            	url   : 'sales_order_details.html?headerId='+headerId
         	});
     	}
-	
-	
 	
    	    $(function() {
             window['orderGatherForm'] = $("#orderGatherForm").ligerForm({
@@ -220,16 +218,22 @@
             window['orderGatherGrid'] = $("#orderGatherGrid").ligerGrid({
                 unSetValidateAttr : false,
                 columns : [{
+                    display : '<@spring.message "exam.sales.customername"/>',
+                    name : 'headerId',
+                    align : 'center',
+                    hide : true
+                },{
                     display : '<@spring.message "exam.sales.headerid"/>',
                     name : 'orderNumber',
                     align : 'center',
                     width : 120,
                     render : function (item) {
                         var orderNumber = item.orderNumber;
-                        //var alert('orderId');
+                        var headerId = item.headerId;
+                        //var alert('headerId');
                         var html = "<a href='javascript:void(0)' " +
                                 "style='text-decoration: none;' " +
-                                "onclick='openJobDetailPage(\"" + orderNumber + "\")'>" + orderNumber + "</a>";
+                                "onclick='openJobDetailPage(\"" + headerId + "\")'>" + orderNumber + "</a>";
                         return html;
                     }
                 },{
@@ -289,8 +293,7 @@
                         text : '<@spring.message "hap.new"/>',
                         disable : false,
                         click : function() {
-                        	openJobDetailPage();
-                        	//orderGatherGrid.addRow({})
+                        	openJobDetailPage("-1");
                         },
                         icon : 'add'
                     }]

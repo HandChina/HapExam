@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ #{copyright}#
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="exam.sales.mapper.OrderLineMapper">
+    <resultMap id="BaseResultMap" type="exam.sales.dto.OrderLine" extends="com.hand.hap.mapper.StdMapper.STD">
+        <result column="LINE_ID" property="lineId" jdbcType="DECIMAL"/>
+        <result column="LINE_NUMBER" property="lineNumber" jdbcType="DECIMAL"/>
+        
+        <result column="ITEM_CODE" property="itemCode" jdbcType="VARCHAR"/>
+        <result column="ITEM_DESCRIPTION" property="itemDescription" jdbcType="VARCHAR"/>
+        
+        <result column="ORDER_QUANTITY_UOM" property="orderQuantityUom" jdbcType="VARCHAR"/>
+        <result column="ORDERD_QUANTITY" property="orderQuantity" jdbcType="DECIMAL"/>
+        <result column="UNIT_SELLING_PRICE" property="unitSellingPrice" jdbcType="DECIMAL"/>
+        <result column="DESCRIPTION" property="description" jdbcType="VARCHAR"/>
+        
+        <result column="ADDITION1" property="addition1" jdbcType="VARCHAR"/>
+        <result column="ADDITION2" property="addition2" jdbcType="VARCHAR"/>
+        <result column="ADDITION3" property="addition3" jdbcType="VARCHAR"/>
+        <result column="ADDITION4" property="addition4" jdbcType="VARCHAR"/>
+        <result column="ADDITION5" property="addition5" jdbcType="VARCHAR"/>
+        
+    </resultMap>
+	
+	<select id="selectByOrderLine" parameterType="exam.sales.dto.OrderLine" resultMap="BaseResultMap">
+		SELECT ol.LINE_ID,
+			   ol.LINE_NUMBER,
+			   
+			   it.ITEM_CODE,
+			   it.ITEM_DESCRIPTION,
+			   
+			   ol.ORDER_QUANTITY_UOM,
+			   ol.ORDERD_QUANTITY,
+			   ol.UNIT_SELLING_PRICE,
+		       ol.DESCRIPTION,
+		       
+		       ol.ADDITION1,
+		       ol.ADDITION2,
+		       ol.ADDITION3,
+		       ol.ADDITION4,
+		       ol.ADDITION5
+		  FROM hap_om_order_lines as ol,
+		  	   hap_inv_inventory_items as it
+
+		<where>
+			   ol.INVENTORY_ITEM_ID = it.INVENTORY_ITEM_ID
+        	<if test="lineId != null">
+                AND ol.LINE_ID = #{lineId,jdbcType=DECIMAL}
+            </if>
+             <if test="lineNumber != null">
+                AND ol.LINE_NUMBER = #{lineNumber,jdbcType=DECIMAL}
+            </if>
+            <if test="headerId != null">
+                AND ol.HEADER_ID = #{headerId,jdbcType=DECIMAL}
+            </if>
+            <if test="orderQuantityUom != null">
+                AND ol.ORDER_QUANTITY_UOM like #{orderQuantityUom,jdbcType=VARCHAR}
+            </if>
+            <if test="orderQuantity != null">
+                AND ol.ORDERD_QUANTITY like #{orderQuantity,jdbcType=VARCHAR}
+            </if>
+            <if test="unitSellingPrice != null">
+                AND ol.UNIT_SELLING_PRICE = #{unitSellingPrice,jdbcType=DECIMAL}
+            </if>
+            <if test="description != null">
+                AND ol.DESCRIPTION = #{description,jdbcType=DECIMAL}
+            </if>
+        </where>
+    </select>
+    
+    
+  
+</mapper>
